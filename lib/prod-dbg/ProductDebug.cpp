@@ -37,9 +37,9 @@ void setupProdDebugEnv()
   setupDebugEnv();
 
   Serial.println();
-  Serial.println("---------------------------------------------");
-  Serial.println("Hello from Wiring Controller!");
-  Serial.println("---------------------------------------------");
+  Serial.println("------------------------------------------");
+  Serial.println("Hello from Servo Axis Controller Test App!");
+  Serial.println("------------------------------------------");
   Serial.println();
 }
 
