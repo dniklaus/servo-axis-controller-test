@@ -30,6 +30,8 @@ public:
 
 //-----------------------------------------------------------------------------
 
+unsigned long Axis::s_defaultVelocityCtrlIntervalMillis = 40;
+
 Axis::Axis()
 : m_servoHal(0)
 , m_angleMin(-90)
@@ -37,6 +39,7 @@ Axis::Axis()
 , m_angle(0)
 , m_velocity(0)
 , m_targetAngle(0)
+, m_velocityCtrlIntervalMillis(s_defaultVelocityCtrlIntervalMillis)
 , m_velocityControlTimer(new Timer(new VelocityControlTimerAdapter(this), Timer::IS_RECURRING, 10))
 , m_targetReachedNotifier(0)
 { }
@@ -50,3 +53,60 @@ Axis::~Axis()
   m_velocityControlTimer = 0;
 }
 
+void Axis::goToTargetAngle(int targetAngle, int velocity)
+{
+  m_targetAngle = targetAngle;
+  m_velocity = velocity;
+
+  // let the control process run automatically, start the recurring timer
+  m_velocityControlTimer->startTimer(m_velocityCtrlIntervalMillis);
+}
+
+void Axis::stop()
+{
+  // stop the control process, cancel the timer
+  m_velocityControlTimer->cancelTimer();
+}
+
+void Axis::doAngleControl()
+{
+  int direction = 1;
+  int deltaAngle = m_targetAngle - m_angle;
+  if (0 > deltaAngle)
+  {
+    direction = -1;
+  }
+  else if (0 == deltaAngle)
+  {
+    direction = 0;
+  }
+  else
+  {
+    direction = 1;
+  }
+  int deltaOfThisIteration = direction * m_velocity;
+  if ((deltaAngle * direction) < m_velocity)
+  {
+    deltaOfThisIteration = deltaAngle;
+  }
+  m_angle = m_angle + deltaOfThisIteration;
+  if (0 != m_servoHal)
+  {
+    m_servoHal->setAngle(m_angle);
+  }
+  if (0 == deltaAngle)
+  {
+    // Target angle reached, control process to be stopped
+    m_velocityControlTimer->cancelTimer();
+
+    if (0 != m_targetReachedNotifier)
+    {
+      m_targetReachedNotifier->notifyTargetReached(m_targetAngle);
+    }
+  }
+}
+
+int Axis::getAngle()
+{
+  return m_angle;
+}

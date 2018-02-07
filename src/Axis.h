@@ -46,8 +46,11 @@ public:
   virtual ~Axis();
 
 public:
-  void goToAngle(int angle);
+  void goToTargetAngle(int targetAngle, int velocity);
+  void stop();
+
   void doAngleControl();
+
   int getAngle();
 
 private:
@@ -57,6 +60,8 @@ private:
   int m_angle;
   int m_velocity;
   int m_targetAngle;
+  unsigned long m_velocityCtrlIntervalMillis;
+  static unsigned long s_defaultVelocityCtrlIntervalMillis;
   Timer* m_velocityControlTimer;
   ITargetReachedNotifier* m_targetReachedNotifier;
 
