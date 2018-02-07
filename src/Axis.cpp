@@ -30,7 +30,7 @@ public:
 
 //-----------------------------------------------------------------------------
 
-unsigned long Axis::s_defaultVelocityCtrlIntervalMillis = 40;
+unsigned long Axis::s_defaultVelocityCtrlIntervalMillis = 20;
 
 Axis::Axis()
 : m_servoHal(0)
@@ -51,6 +51,11 @@ Axis::~Axis()
 
   delete m_velocityControlTimer;
   m_velocityControlTimer = 0;
+}
+
+void Axis::attachServoHal(IServoHal* servoHal)
+{
+  m_servoHal = servoHal;
 }
 
 void Axis::goToTargetAngle(int targetAngle, int velocity)

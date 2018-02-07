@@ -46,6 +46,8 @@ public:
   virtual ~Axis();
 
 public:
+  void attachServoHal(IServoHal* servoHal);
+
   void goToTargetAngle(int targetAngle, int velocity);
   void stop();
 
