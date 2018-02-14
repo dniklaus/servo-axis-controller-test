@@ -5,6 +5,7 @@
  *      Author: nid
  */
 
+#include <string.h>
 #include <Timer.h>
 
 #include <Axis.h>
@@ -32,8 +33,9 @@ public:
 
 unsigned long Axis::s_defaultVelocityCtrlIntervalMillis = 20;
 
-Axis::Axis()
+Axis::Axis(const char* name)
 : m_servoHal(0)
+, m_name(new char[strlen(name)+1])
 , m_angleMin(-90)
 , m_angleMax(90)
 , m_angle(0)
@@ -42,7 +44,10 @@ Axis::Axis()
 , m_velocityCtrlIntervalMillis(s_defaultVelocityCtrlIntervalMillis)
 , m_velocityControlTimer(new Timer(new VelocityControlTimerAdapter(this), Timer::IS_RECURRING, 10))
 , m_targetReachedNotifier(0)
-{ }
+{
+  memset(m_name, 0, strlen(name)+1);
+  strncpy(m_name, name, strlen(name));
+}
 
 Axis::~Axis()
 {
@@ -56,6 +61,11 @@ Axis::~Axis()
 void Axis::attachServoHal(IServoHal* servoHal)
 {
   m_servoHal = servoHal;
+}
+
+const char* Axis::name() const
+{
+ return m_name;
 }
 
 void Axis::goToTargetAngle(int targetAngle, int velocity)

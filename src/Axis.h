@@ -11,6 +11,10 @@
 class IServoHal
 {
 public:
+  /**
+   * Set a particular angle the Servo shall be set to.
+   * @param angle Angle to be set {0 .. 180}
+   */
   virtual void setAngle(int angle) = 0;
 
 public:
@@ -42,12 +46,19 @@ class Timer;
 class Axis
 {
 public:
-  Axis();
+  Axis(const char* name);
   virtual ~Axis();
 
 public:
   void attachServoHal(IServoHal* servoHal);
 
+  const char* name() const;
+
+  /**
+   * Set a particular angle the Servo shall be set to.
+   * @param targetAngle Angle to be set {0 .. 180}
+   * @param velocity
+   */
   void goToTargetAngle(int targetAngle, int velocity);
   void stop();
 
@@ -57,6 +68,7 @@ public:
 
 private:
   IServoHal* m_servoHal;
+  char* m_name;
   int m_angleMin;
   int m_angleMax;
   int m_angle;
@@ -68,6 +80,7 @@ private:
   ITargetReachedNotifier* m_targetReachedNotifier;
 
 private:  // forbidden functions
+  Axis();                             // default constructor
   Axis(const Axis& src);              // copy constructor
   Axis& operator = (const Axis& src); // assignment operator
 };
