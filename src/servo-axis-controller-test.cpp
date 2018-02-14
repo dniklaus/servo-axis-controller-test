@@ -32,7 +32,7 @@
 
 SerialCommand* sCmd = 0;
 Axis* axis = 0;
-int servoPin = 6;
+int servoPin = 2;
 
 class ServoAxis : public IServoHal
 {
@@ -54,7 +54,7 @@ class DbgCmd_SetAngle : public DbgCli_Command
   Axis* m_axis;
 public:
   DbgCmd_SetAngle(Axis* axis)
-  : DbgCli_Command(new DbgCli_Topic(DbgCli_Node::RootNode(), "axis", "Axis debug commands"), "set", "Set angle [-90°..90°].")
+  : DbgCli_Command(new DbgCli_Topic(DbgCli_Node::RootNode(), axis->name(), "Axis debug commands"), "set", "Set angle [-90°..90°].")
   , m_axis(axis)
   { }
 
@@ -74,10 +74,10 @@ public:
       Serial.println();
       Serial.print("Axis set angle: ");
       Serial.print(angle);
-      Serial.print(" [°]");
+      Serial.print(" [*]");
       Serial.print(", velocity: ");
       Serial.print(velocity);
-      Serial.println(" [°/ms]");
+      Serial.println(" [*/ms]");
     }
   }
 
@@ -85,7 +85,7 @@ public:
   {
     Serial.println(getHelpText());
     Serial.println("Usage: dbg axis set <angle> <velocity>");
-    Serial.println("       angle: -90..90, velocity: 1..40");
+    Serial.println("       angle: -90..90 [*], velocity: 1..40");
   }
 };
 
@@ -96,10 +96,16 @@ void setup()
 
   setupProdDebugEnv();
 
-  axis = new Axis();
-  axis->attachServoHal(new ServoAxis(servoPin));
+  char axisName[5];
+  memset(axisName, 0, strlen(axisName+1));
 
-  new DbgCmd_SetAngle(axis);
+  for (unsigned int i = 0; i < 8; i++)
+  {
+    sprintf(axisName, "ax%d", i);
+    axis = new Axis(axisName);
+    axis->attachServoHal(new ServoAxis(servoPin+i));
+    new DbgCmd_SetAngle(axis);
+  }
 }
 
 void loop()
