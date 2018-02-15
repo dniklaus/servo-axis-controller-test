@@ -63,6 +63,12 @@ void Axis::attachServoHal(IServoHal* servoHal)
   m_servoHal = servoHal;
 }
 
+void Axis::attachTargetReachedNotifier(ITargetReachedNotifier* targetReachedNotifier)
+{
+  m_targetReachedNotifier = targetReachedNotifier;
+}
+
+
 const char* Axis::name() const
 {
  return m_name;

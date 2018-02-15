@@ -36,6 +36,9 @@ public:
 public:
   virtual ~ITargetReachedNotifier() { }
 
+protected:
+  ITargetReachedNotifier() { }
+
 private:  // forbidden functions
   ITargetReachedNotifier(const ITargetReachedNotifier& src);              // copy constructor
   ITargetReachedNotifier& operator = (const ITargetReachedNotifier& src); // assignment operator
@@ -51,6 +54,7 @@ public:
 
 public:
   void attachServoHal(IServoHal* servoHal);
+  void attachTargetReachedNotifier(ITargetReachedNotifier* targetReachedNotifier);
 
   const char* name() const;
 
