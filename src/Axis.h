@@ -13,7 +13,7 @@ class IServoHal
 public:
   /**
    * Set a particular angle the Servo shall be set to.
-   * @param angle Angle to be set {0 .. 180}
+   * @param angle Angle to be set {-90 .. 90}
    */
   virtual void setAngle(int angle) = 0;
 
@@ -60,7 +60,7 @@ public:
 
   /**
    * Set a particular angle the Servo shall be set to.
-   * @param targetAngle Angle to be set {0 .. 180}
+   * @param targetAngle Angle to be set {-90 .. 90}
    * @param velocity
    */
   void goToTargetAngle(int targetAngle, int velocity);
