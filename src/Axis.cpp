@@ -6,17 +6,17 @@
  */
 
 #include <string.h>
-#include <Timer.h>
+#include <SpinTimer.h>
 
 #include <Axis.h>
 
-class VelocityControlTimerAdapter : public TimerAdapter
+class VelocityControlTimerAction : public SpinTimerAction
 {
 private:
   Axis* m_axis;
 
 public:
-  VelocityControlTimerAdapter(Axis* axis)
+  VelocityControlTimerAction(Axis* axis)
   : m_axis(axis)
   { }
 
@@ -42,7 +42,7 @@ Axis::Axis(const char* name)
 , m_velocity(0)
 , m_targetAngle(0)
 , m_velocityCtrlIntervalMillis(s_defaultVelocityCtrlIntervalMillis)
-, m_velocityControlTimer(new Timer(new VelocityControlTimerAdapter(this), Timer::IS_RECURRING, 10))
+, m_velocityControlTimer(new SpinTimer(10, new VelocityControlTimerAction(this), SpinTimer::IS_RECURRING))
 , m_targetReachedNotifier(0)
 {
   memset(m_name, 0, strlen(name)+1);
@@ -51,8 +51,8 @@ Axis::Axis(const char* name)
 
 Axis::~Axis()
 {
-  delete m_velocityControlTimer->adapter();
-  m_velocityControlTimer->attachAdapter(0);
+  delete m_velocityControlTimer->action();
+  m_velocityControlTimer->attachAction(0);
 
   delete m_velocityControlTimer;
   m_velocityControlTimer = 0;
@@ -80,13 +80,13 @@ void Axis::goToTargetAngle(int targetAngle, int velocity)
   m_velocity = velocity;
 
   // let the control process run automatically, start the recurring timer
-  m_velocityControlTimer->startTimer(m_velocityCtrlIntervalMillis);
+  m_velocityControlTimer->start(m_velocityCtrlIntervalMillis);
 }
 
 void Axis::stop()
 {
   // stop the control process, cancel the timer
-  m_velocityControlTimer->cancelTimer();
+  m_velocityControlTimer->cancel();
 }
 
 void Axis::doAngleControl()
@@ -118,7 +118,7 @@ void Axis::doAngleControl()
   if (0 == deltaAngle)
   {
     // Target angle reached, control process to be stopped
-    m_velocityControlTimer->cancelTimer();
+    m_velocityControlTimer->cancel();
 
     if (0 != m_targetReachedNotifier)
     {

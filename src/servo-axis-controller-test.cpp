@@ -9,20 +9,13 @@
 
 // PlatformIO libraries
 #include <SerialCommand.h>  // pio lib install 173, lib details see https://github.com/kroimon/Arduino-SerialCommand
-#include <Timer.h>          // pio lib install 1699, lib details see https://github.com/dniklaus/wiring-timer
+#include <SpinTimer.h>      // pio lib install 11599, lib details see https://github.com/dniklaus/spin-timer
+#include <DbgTracePort.h>
+#include <DbgCliCommand.h>
+#include <DbgCliTopic.h>
 
 // private libraries
-#include <DbgCliNode.h>
-#include <DbgCliTopic.h>
-#include <DbgCliCommand.h>
-#include <DbgTracePort.h>
-#include <DbgTraceContext.h>
-#include <DbgTraceOut.h>
-#include <DbgPrintConsole.h>
-#include <DbgTraceLevel.h>
-#include <AppDebug.h>
 #include <ProductDebug.h>
-#include <RamUtils.h>
 #include <Axis.h>
 #include <Servo.h>
 
@@ -56,12 +49,14 @@ class TargetReachedNotifier : public ITargetReachedNotifier
   Axis* m_axis;
   DbgTrace_Port* m_trPort;
   char* m_trPortName;
+  bool m_isTargetReached;
 
 public:
   TargetReachedNotifier(Axis* axis)
   : m_axis(axis)
   , m_trPort(0)
   , m_trPortName(new char[strlen(m_axis->name())+2])
+  , m_isTargetReached(false)
   {
     memset(m_trPortName, 0, strlen(m_axis->name())+2);
     sprintf(m_trPortName, "t%s", m_axis->name());
@@ -71,6 +66,16 @@ public:
   void notifyTargetReached(int targetAngle)
   {
     TR_PRINTF(m_trPort, DbgTrace_Level::debug, "Target reached (%d)", targetAngle);
+    m_isTargetReached = true;
+  }
+
+  void waitForTargetReached()
+  {
+    while (!m_isTargetReached)
+    {
+      scheduleTimers();
+    }
+    m_isTargetReached = false;
   }
 };
 
@@ -122,13 +127,20 @@ void setup()
   char* axisName;
   for (unsigned int i = 0; i < 8; i++)
   {
-    axisName = new char[5];
-    memset(axisName, 0, strlen(axisName)+1);
-    sprintf(axisName, "ax%d", i);
+    axisName = new char[6];
+    memset(axisName, 0, strlen(axisName));
+    sprintf(axisName, "ax%d\0", i);
     axis = new Axis(axisName);
     axis->attachServoHal(new ServoAxis(servoPin+i));
-    axis->attachTargetReachedNotifier(new TargetReachedNotifier(axis));
+    TargetReachedNotifier* targetReachedNotifier = new TargetReachedNotifier(axis);
+    axis->attachTargetReachedNotifier(targetReachedNotifier);
     new DbgCmd_SetAngle(axis);
+    axis->goToTargetAngle(30, 1);
+    targetReachedNotifier->waitForTargetReached();
+    axis->goToTargetAngle(-30, 1);
+    targetReachedNotifier->waitForTargetReached();
+    axis->goToTargetAngle(0, 1);
+    targetReachedNotifier->waitForTargetReached();
   }
 }
 
@@ -138,5 +150,5 @@ void loop()
   {
     sCmd->readSerial();     // process serial commands
   }
-  yield();                  // process Timers
+  scheduleTimers();         // process Timers
 }

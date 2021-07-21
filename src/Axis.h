@@ -44,7 +44,7 @@ private:  // forbidden functions
   ITargetReachedNotifier& operator = (const ITargetReachedNotifier& src); // assignment operator
 };
 
-class Timer;
+class SpinTimer;
 
 class Axis
 {
@@ -80,7 +80,7 @@ private:
   int m_targetAngle;
   unsigned long m_velocityCtrlIntervalMillis;
   static unsigned long s_defaultVelocityCtrlIntervalMillis;
-  Timer* m_velocityControlTimer;
+  SpinTimer* m_velocityControlTimer;
   ITargetReachedNotifier* m_targetReachedNotifier;
 
 private:  // forbidden functions
