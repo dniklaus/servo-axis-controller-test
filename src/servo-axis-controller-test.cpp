@@ -16,6 +16,8 @@
 
 // private libraries
 #include <ProductDebug.h>
+#include <CmdSequence.h>
+#include <Cmd.h>
 #include <Axis.h>
 #include <Servo.h>
 
