@@ -119,6 +119,29 @@ public:
   }
 };
 
+class CmdGoToAngle : public Cmd
+{
+private:
+  Axis* m_axis;
+  int m_targetAngle;
+  int m_velocity;
+public:
+  CmdGoToAngle(CmdSequence* cmdSequence, long int timeMillis, Axis* axis, int targetAngle, int velocity) 
+  : Cmd(cmdSequence, timeMillis, (0 != axis) ? axis->name() : "")
+  , m_axis(axis)
+  { }
+
+  virtual ~CmdGoToAngle() { }
+  
+  void execute() 
+  {
+    if (0 != m_axis)
+    {
+      m_axis->goToTargetAngle(m_targetAngle, m_velocity);
+    }
+  }
+};
+
 void setup()
 {
   pinMode(BUILTIN_LED, OUTPUT);
@@ -127,7 +150,7 @@ void setup()
   setupProdDebugEnv();
 
   char* axisName;
-  for (unsigned int i = 0; i < 8; i++)
+  for (unsigned int i = 0; i < 1; i++)
   {
     axisName = new char[6];
     memset(axisName, 0, strlen(axisName));
@@ -137,12 +160,10 @@ void setup()
     TargetReachedNotifier* targetReachedNotifier = new TargetReachedNotifier(axis);
     axis->attachTargetReachedNotifier(targetReachedNotifier);
     new DbgCmd_SetAngle(axis);
-    axis->goToTargetAngle(30, 1);
-    targetReachedNotifier->waitForTargetReached();
-    axis->goToTargetAngle(-30, 1);
-    targetReachedNotifier->waitForTargetReached();
-    axis->goToTargetAngle(0, 1);
-    targetReachedNotifier->waitForTargetReached();
+    CmdSequence* cmdSequence = new CmdSequence();
+    new CmdGoToAngle(cmdSequence, 10000, axis, 30, 1);
+    new CmdGoToAngle(cmdSequence, 10000, axis, -30, 1);
+    new CmdGoToAngle(cmdSequence, 10000, axis, 0, 1);
   }
 }
 
