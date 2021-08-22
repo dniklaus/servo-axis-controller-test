@@ -10,7 +10,7 @@ This skeleton application can help you to build up your own Arduino Framework ba
 
 It demonstrates the usage of the following copmonents:
 
-* [Timer](https://github.com/dniklaus/arduino-utils-timer)
+* [SpinTimer](https://github.com/dniklaus/spin-timer)
 * [Debug-Cli](https://github.com/ERNICommunity/debug-cli)
 * [Dbg-Trace](https://github.com/ERNICommunity/dbg-trace)
 
@@ -65,7 +65,7 @@ This chapter lists all the libraries this project is using.
 ### Homebrew Libraries
 |Name|URL|Description|
 |:------|:---------------------|:-------------------------------|
-|Timer|https://github.com/dniklaus/arduino-utils-timer|Universal recurring or non-recurring Timer|
+|SpinTimer|https://github.com/dniklaus/spin-timer|Universal recurring or non-recurring Timer|
 |Debug-Cli|https://github.com/ERNICommunity/debug-cli|Debug CLI for Embedded Applications - Command Line  Interface for debugging and testing based on object oriented tree structure.|
 |Dbg-Trace|https://github.com/ERNICommunity/dbg-trace|Debug Trace component for Embedded Applications - Debug and Trace Log message system based on trace ports with adjustable levels.|
 |RamUtils|https://github.com/dniklaus/arduino-utils-mem|Arduino Memory Utilities|
