@@ -129,6 +129,8 @@ public:
   CmdGoToAngle(CmdSequence* cmdSequence, long int timeMillis, Axis* axis, int targetAngle, int velocity) 
   : Cmd(cmdSequence, timeMillis, (0 != axis) ? axis->name() : "")
   , m_axis(axis)
+  , m_targetAngle(targetAngle)
+  , m_velocity(velocity)
   { }
 
   virtual ~CmdGoToAngle() { }
@@ -161,9 +163,10 @@ void setup()
     axis->attachTargetReachedNotifier(targetReachedNotifier);
     new DbgCmd_SetAngle(axis);
     CmdSequence* cmdSequence = new CmdSequence();
-    new CmdGoToAngle(cmdSequence, 10000, axis, 30, 1);
-    new CmdGoToAngle(cmdSequence, 10000, axis, -30, 1);
-    new CmdGoToAngle(cmdSequence, 10000, axis, 0, 1);
+    new CmdGoToAngle(cmdSequence, 2500, axis, 90, 1);
+    new CmdGoToAngle(cmdSequence, 5000, axis, -90, 1);
+    new CmdGoToAngle(cmdSequence, 2500, axis, 0, 1);
+    cmdSequence->start();
   }
 }
 
