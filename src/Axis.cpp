@@ -31,7 +31,7 @@ public:
 
 //-----------------------------------------------------------------------------
 
-unsigned long Axis::s_defaultVelocityCtrlIntervalMillis = 20;
+unsigned long Axis::s_defaultVelocityCtrlIntervalMillis = 50;
 
 Axis::Axis(const char* name)
 : m_servoHal(0)
@@ -42,7 +42,7 @@ Axis::Axis(const char* name)
 , m_velocity(0)
 , m_targetAngle(0)
 , m_velocityCtrlIntervalMillis(s_defaultVelocityCtrlIntervalMillis)
-, m_velocityControlTimer(new SpinTimer(10, new VelocityControlTimerAction(this), SpinTimer::IS_RECURRING))
+, m_velocityControlTimer(new SpinTimer(0, new VelocityControlTimerAction(this), SpinTimer::IS_RECURRING))
 , m_targetReachedNotifier(0)
 {
   memset(m_name, 0, strlen(name)+1);
