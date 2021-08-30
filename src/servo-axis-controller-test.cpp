@@ -49,16 +49,16 @@ public:
 class TargetReachedNotifier : public ITargetReachedNotifier
 {
   Axis* m_axis;
+  CmdSequence* m_cmdSequence;
   DbgTrace_Port* m_trPort;
   char* m_trPortName;
-  bool m_isTargetReached;
 
 public:
-  TargetReachedNotifier(Axis* axis)
+  TargetReachedNotifier(Axis* axis, CmdSequence* cmdSequence)
   : m_axis(axis)
+  , m_cmdSequence(cmdSequence)
   , m_trPort(0)
   , m_trPortName(new char[strlen(m_axis->name())+2])
-  , m_isTargetReached(false)
   {
     memset(m_trPortName, 0, strlen(m_axis->name())+2);
     sprintf(m_trPortName, "t%s", m_axis->name());
@@ -68,16 +68,13 @@ public:
   void notifyTargetReached(int targetAngle)
   {
     TR_PRINTF(m_trPort, DbgTrace_Level::debug, "Target reached (%d)", targetAngle);
-    m_isTargetReached = true;
-  }
-
-  void waitForTargetReached()
-  {
-    while (!m_isTargetReached)
+    if (0 != m_cmdSequence)
     {
-      scheduleTimers();
+      if (m_cmdSequence->isRunning())
+      {
+        m_cmdSequence->execNextCmd();
+      }
     }
-    m_isTargetReached = false;
   }
 };
 
@@ -142,6 +139,14 @@ public:
       m_axis->goToTargetAngle(m_targetAngle, m_velocity);
     }
   }
+
+  void leave()
+  {
+    if (0 != axis)
+    {
+      m_axis->stop();
+    }
+  }
 };
 
 void setup()
@@ -159,13 +164,15 @@ void setup()
     sprintf(axisName, "ax%d\0", i);
     axis = new Axis(axisName);
     axis->attachServoHal(new ServoAxis(servoPin+i));
-    TargetReachedNotifier* targetReachedNotifier = new TargetReachedNotifier(axis);
-    axis->attachTargetReachedNotifier(targetReachedNotifier);
     new DbgCmd_SetAngle(axis);
     CmdSequence* cmdSequence = new CmdSequence();
-    new CmdGoToAngle(cmdSequence, 2500, axis, 90, 1);
-    new CmdGoToAngle(cmdSequence, 5000, axis, -90, 1);
-    new CmdGoToAngle(cmdSequence, 2500, axis, 0, 1);
+    TargetReachedNotifier* targetReachedNotifier = new TargetReachedNotifier(axis, cmdSequence);
+    axis->attachTargetReachedNotifier(targetReachedNotifier);
+    new CmdGoToAngle(cmdSequence, -1, axis, 90, 2);
+    new CmdStop(cmdSequence, 2000);
+    new CmdGoToAngle(cmdSequence, -1, axis, -90, 2);
+    new CmdStop(cmdSequence, 2000);
+    new CmdGoToAngle(cmdSequence, -1, axis, 0, 2);
     cmdSequence->start();
   }
 }
