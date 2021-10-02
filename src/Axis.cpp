@@ -41,6 +41,7 @@ Axis::Axis(const char* name)
 , m_angle(0)
 , m_velocity(0)
 , m_targetAngle(0)
+, m_isTargetReached(false)
 , m_velocityCtrlIntervalMillis(s_defaultVelocityCtrlIntervalMillis)
 , m_velocityControlTimer(new SpinTimer(0, new VelocityControlTimerAction(this), SpinTimer::IS_RECURRING))
 , m_targetReachedNotifier(0)
@@ -68,6 +69,10 @@ void Axis::attachTargetReachedNotifier(ITargetReachedNotifier* targetReachedNoti
   m_targetReachedNotifier = targetReachedNotifier;
 }
 
+ITargetReachedNotifier* Axis::targetReachedNotifier()
+{
+  return m_targetReachedNotifier;
+}
 
 const char* Axis::name() const
 {
@@ -76,6 +81,7 @@ const char* Axis::name() const
 
 void Axis::goToTargetAngle(int targetAngle, int velocity)
 {
+  m_isTargetReached = false;
   m_targetAngle = targetAngle;
   m_velocity = velocity;
 
@@ -120,6 +126,8 @@ void Axis::doAngleControl()
     // Target angle reached, control process to be stopped
     m_velocityControlTimer->cancel();
 
+    m_isTargetReached = true;
+
     if (0 != m_targetReachedNotifier)
     {
       m_targetReachedNotifier->notifyTargetReached(m_targetAngle);
@@ -130,4 +138,11 @@ void Axis::doAngleControl()
 int Axis::getAngle()
 {
   return m_angle;
+}
+
+bool Axis::isTargetReached()
+{
+  bool isTargetReached = m_isTargetReached;
+  m_isTargetReached = false;
+  return isTargetReached;
 }

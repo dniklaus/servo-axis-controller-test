@@ -56,6 +56,8 @@ public:
   void attachServoHal(IServoHal* servoHal);
   void attachTargetReachedNotifier(ITargetReachedNotifier* targetReachedNotifier);
 
+  ITargetReachedNotifier* targetReachedNotifier();
+
   const char* name() const;
 
   /**
@@ -70,6 +72,8 @@ public:
 
   int getAngle();
 
+  bool isTargetReached();
+
 private:
   IServoHal* m_servoHal;
   char* m_name;
@@ -78,6 +82,7 @@ private:
   int m_angle;
   int m_velocity;
   int m_targetAngle;
+  bool m_isTargetReached;
   unsigned long m_velocityCtrlIntervalMillis;
   static unsigned long s_defaultVelocityCtrlIntervalMillis;
   SpinTimer* m_velocityControlTimer;
