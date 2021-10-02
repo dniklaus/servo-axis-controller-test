@@ -157,7 +157,7 @@ void setup()
   setupProdDebugEnv();
 
   char* axisName;
-  for (unsigned int i = 0; i < 1; i++)
+  for (unsigned int i = 0; i < 2; i++)
   {
     axisName = new char[6];
     memset(axisName, 0, strlen(axisName));
