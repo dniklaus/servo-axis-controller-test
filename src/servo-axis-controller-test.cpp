@@ -13,6 +13,7 @@
 #include <DbgTracePort.h>
 #include <DbgCliCommand.h>
 #include <DbgCliTopic.h>
+#include <DbgCliNode.h>
 
 // private libraries
 #include <ProductDebug.h>
@@ -90,6 +91,8 @@ public:
   , m_axis(axis)
   , m_trPort(new DbgTrace_Port(m_axis->name(), DbgTrace_Level::debug))
   { }
+
+  Axis* axis() { return m_axis; }
 
   void execute(unsigned int argc, const char** args, unsigned int idxToFirstArgToHandle)
   {
@@ -174,6 +177,22 @@ void setup()
     new CmdStop(cmdSequence, 2000);
     new CmdGoToAngle(cmdSequence, -1, axis, 0, 2);
     cmdSequence->start();
+  }
+   
+  
+  // Synchronized and sequential axes movements
+  Axis* ax0 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax0")->getChildNode("set"))->axis();
+  if (0 != ax0)
+  {
+    while(!ax0->isTargetReached()) { }
+    ax0->goToTargetAngle(90, 10);
+    while(!ax0->isTargetReached()) { }
+  }
+  Axis* ax1 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax1")->getChildNode("set"))->axis();
+  if (0 != ax1)
+  {
+    ax1->goToTargetAngle(90, 10);
+    while(!ax1->isTargetReached()) { }
   }
 }
 
