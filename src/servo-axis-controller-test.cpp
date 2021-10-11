@@ -182,17 +182,15 @@ void setup()
   
   // Synchronized and sequential axes movements
   Axis* ax0 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax0")->getChildNode("set"))->axis();
-  if (0 != ax0)
-  {
-    while(!ax0->isTargetReached()) { }
-    ax0->goToTargetAngle(90, 10);
-    while(!ax0->isTargetReached()) { }
-  }
   Axis* ax1 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax1")->getChildNode("set"))->axis();
-  if (0 != ax1)
+  if ((0 != ax0) && (0 != ax1))
   {
+    while(!ax0->isTargetReached() && !ax1->isTargetReached()) { scheduleTimers(); }
+    ax0->goToTargetAngle(90, 10);
+    while(!ax0->isTargetReached()) { scheduleTimers(); }
+  
     ax1->goToTargetAngle(90, 10);
-    while(!ax1->isTargetReached()) { }
+    while(!ax1->isTargetReached()) { scheduleTimers(); }
   }
 }
 
