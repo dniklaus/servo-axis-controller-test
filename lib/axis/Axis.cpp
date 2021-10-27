@@ -7,7 +7,7 @@
 
 #include <string.h>
 #include <SpinTimer.h>
-
+#include <ITargetReachedNotifier.h>
 #include <Axis.h>
 
 class VelocityControlTimerAction : public SpinTimerAction

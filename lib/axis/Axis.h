@@ -8,6 +8,8 @@
 #ifndef SRC_AXIS_H_
 #define SRC_AXIS_H_
 
+class ITargetReachedNotifier;
+
 class IServoHal
 {
 public:
@@ -26,22 +28,6 @@ protected:
 private:  // forbidden functions
   IServoHal(const IServoHal& src);              // copy constructor
   IServoHal& operator = (const IServoHal& src); // assignment operator
-};
-
-class ITargetReachedNotifier
-{
-public:
-  virtual void notifyTargetReached(int targetAngle) = 0;
-
-public:
-  virtual ~ITargetReachedNotifier() { }
-
-protected:
-  ITargetReachedNotifier() { }
-
-private:  // forbidden functions
-  ITargetReachedNotifier(const ITargetReachedNotifier& src);              // copy constructor
-  ITargetReachedNotifier& operator = (const ITargetReachedNotifier& src); // assignment operator
 };
 
 class SpinTimer;

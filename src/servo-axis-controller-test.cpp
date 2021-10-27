@@ -16,11 +16,13 @@
 #include <DbgCliNode.h>
 
 // private libraries
+#include <ITargetReachedNotifier.h>
+#include <TargetReachedNotifier.h>
 #include <ProductDebug.h>
 #include <CmdSequence.h>
 #include <Cmd.h>
 #include <Axis.h>
-#include <Servo.h>
+#include <MyServoHal.h>
 
 #ifndef BUILTIN_LED
 #define BUILTIN_LED 13
@@ -29,55 +31,6 @@
 SerialCommand* sCmd = 0;
 Axis* axis = 0;
 int servoPin = 2;
-
-class ServoAxis : public IServoHal
-{
-  Servo* m_servo;
-
-public:
-  ServoAxis(int servoPin)
-  : m_servo(new Servo())
-  {
-    m_servo->attach(servoPin);
-  }
-
-  void setAngle(int angle)
-  {
-    m_servo->write(map(angle, -90, 90, 0, 180));
-  }
-};
-
-class TargetReachedNotifier : public ITargetReachedNotifier
-{
-  Axis* m_axis;
-  CmdSequence* m_cmdSequence;
-  DbgTrace_Port* m_trPort;
-  char* m_trPortName;
-
-public:
-  TargetReachedNotifier(Axis* axis, CmdSequence* cmdSequence)
-  : m_axis(axis)
-  , m_cmdSequence(cmdSequence)
-  , m_trPort(0)
-  , m_trPortName(new char[strlen(m_axis->name())+2])
-  {
-    memset(m_trPortName, 0, strlen(m_axis->name())+2);
-    sprintf(m_trPortName, "t%s", m_axis->name());
-    m_trPort = new DbgTrace_Port(m_trPortName, DbgTrace_Level::debug);
-  }
-
-  void notifyTargetReached(int targetAngle)
-  {
-    TR_PRINTF(m_trPort, DbgTrace_Level::debug, "Target reached (%d)", targetAngle);
-    if (0 != m_cmdSequence)
-    {
-      if (m_cmdSequence->isRunning())
-      {
-        m_cmdSequence->execNextCmd();
-      }
-    }
-  }
-};
 
 class DbgCmd_SetAngle : public DbgCli_Command
 {
@@ -166,11 +119,13 @@ void setup()
     memset(axisName, 0, strlen(axisName));
     sprintf(axisName, "ax%d\0", i);
     axis = new Axis(axisName);
-    axis->attachServoHal(new ServoAxis(servoPin+i));
+    axis->attachServoHal(new MyServoHal(servoPin+i));
     new DbgCmd_SetAngle(axis);
+    
     CmdSequence* cmdSequence = new CmdSequence();
-    TargetReachedNotifier* targetReachedNotifier = new TargetReachedNotifier(axis, cmdSequence);
-    axis->attachTargetReachedNotifier(targetReachedNotifier);
+    ITargetReachedNotifier* targetReachedNotifier = new TargetReachedNotifier(axis, cmdSequence);
+    axis->attachTargetReachedNotifier(new TargetReachedNotifier(axis, cmdSequence));
+
     new CmdGoToAngle(cmdSequence, -1, axis, 90, 2);
     new CmdStop(cmdSequence, 2000);
     new CmdGoToAngle(cmdSequence, -1, axis, -90, 2);
@@ -179,15 +134,14 @@ void setup()
     cmdSequence->start();
   }
    
-  
   // Synchronized and sequential axes movements
   Axis* ax0 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax0")->getChildNode("set"))->axis();
   Axis* ax1 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax1")->getChildNode("set"))->axis();
   if ((0 != ax0) && (0 != ax1))
   {
-    while(!ax0->isTargetReached() && !ax1->isTargetReached()) { scheduleTimers(); }
+    while (!ax0->isTargetReached() && !ax1->isTargetReached()) { scheduleTimers(); }
     ax0->goToTargetAngle(90, 10);
-    while(!ax0->isTargetReached()) { scheduleTimers(); }
+    while (!ax0->isTargetReached()) { scheduleTimers(); }
   
     ax1->goToTargetAngle(90, 10);
     while(!ax1->isTargetReached()) { scheduleTimers(); }
