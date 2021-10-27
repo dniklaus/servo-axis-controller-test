@@ -123,7 +123,6 @@ void setup()
     new DbgCmd_SetAngle(axis);
     
     CmdSequence* cmdSequence = new CmdSequence();
-    ITargetReachedNotifier* targetReachedNotifier = new TargetReachedNotifier(axis, cmdSequence);
     axis->attachTargetReachedNotifier(new TargetReachedNotifier(axis, cmdSequence));
 
     new CmdGoToAngle(cmdSequence, -1, axis, 90, 2);
