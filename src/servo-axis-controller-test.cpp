@@ -42,7 +42,7 @@ public:
   DbgCmd_SetAngle(Axis* axis)
   : DbgCli_Command(new DbgCli_Topic(DbgCli_Node::RootNode(), axis->name(), "Axis debug commands"), "set", "Set angle {-90..90} with defined velocity {1..40}.")
   , m_axis(axis)
-  , m_trPort(new DbgTrace_Port(m_axis->name(), DbgTrace_Level::debug))
+  , m_trPort(new DbgTrace_Port(m_axis->name(), DbgTrace_Level::info))
   { }
 
   Axis* axis() { return m_axis; }
@@ -60,7 +60,7 @@ public:
       angle = atoi(args[idxToFirstArgToHandle]);
       velocity = atoi(args[idxToFirstArgToHandle+1]);
       m_axis->goToTargetAngle(angle, velocity);
-      TR_PRINTF(m_trPort, DbgTrace_Level::debug, "Moving from %d to %d, velocity: %d", m_axis->getAngle(), angle, velocity);
+      TR_PRINTF(m_trPort, DbgTrace_Level::info, "Moving from %d to %d, velocity: %d", m_axis->getAngle(), angle, velocity);
     }
   }
 
@@ -125,25 +125,23 @@ void setup()
     CmdSequence* cmdSequence = new CmdSequence();
     axis->attachTargetReachedNotifier(new TargetReachedNotifier(axis, cmdSequence));
 
-    new CmdGoToAngle(cmdSequence, -1, axis, 90, 2);
-    new CmdStop(cmdSequence, 2000);
-    new CmdGoToAngle(cmdSequence, -1, axis, -90, 2);
-    new CmdStop(cmdSequence, 2000);
-    new CmdGoToAngle(cmdSequence, -1, axis, 0, 2);
+    new CmdGoToAngle(cmdSequence, -1, axis, 90, 360);
+    new CmdStop(cmdSequence, 100);
+    new CmdGoToAngle(cmdSequence, -1, axis, -90, 360);
+    new CmdStop(cmdSequence, 100);
+    new CmdGoToAngle(cmdSequence, -1, axis, 90, 360);
+    new CmdStop(cmdSequence, 100);
+    new CmdGoToAngle(cmdSequence, -1, axis, -90, 360);
+
     cmdSequence->start();
   }
-   
+     
   // Synchronized and sequential axes movements
   Axis* ax0 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax0")->getChildNode("set"))->axis();
   Axis* ax1 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax1")->getChildNode("set"))->axis();
   if ((0 != ax0) && (0 != ax1))
   {
     while (!ax0->isTargetReached() && !ax1->isTargetReached()) { scheduleTimers(); }
-    ax0->goToTargetAngle(90, 10);
-    while (!ax0->isTargetReached()) { scheduleTimers(); }
-  
-    ax1->goToTargetAngle(90, 10);
-    while(!ax1->isTargetReached()) { scheduleTimers(); }
   }
 }
 

@@ -4,8 +4,9 @@
 #include <Axis.h>
 
 class Servo;
+class DbgTrace_Port;
 
-class MyServoHal : public IServoHal
+class MyServoHal : public AServoHal
 {
 public:
   MyServoHal(int servoPin);
@@ -15,4 +16,5 @@ public:
 
 private:
   Servo* m_servo;
+  DbgTrace_Port* m_trPort;
 };
