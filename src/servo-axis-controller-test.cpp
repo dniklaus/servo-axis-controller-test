@@ -139,7 +139,7 @@ void setup()
     new CmdGoToAngle(cmdSequence, -1, axis, 0, 300);
 
     cmdSequence->start();
-    delayAndSchedule(250);
+    delayAndSchedule(1500);
   }
      
   // Synchronized and sequential axes movements
