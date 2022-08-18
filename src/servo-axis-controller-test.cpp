@@ -151,11 +151,11 @@ void setup()
 
   if ((0 != ax0) && (0 != ax1) && (0 != ax2) && (0 != ax3) && (0 != ax4))
   {
-    while (!ax0->isTargetReached() && 
-           !ax1->isTargetReached() &&
-           !ax2->isTargetReached() &&
-           !ax3->isTargetReached() &&
-           !ax4->isTargetReached()   ) 
+    while (ax0->isBusy() || 
+           ax1->isBusy() ||
+           ax2->isBusy() ||
+           ax3->isBusy() ||
+           ax4->isBusy()  ) 
     { 
       scheduleTimers(); 
     }
