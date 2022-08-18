@@ -16,6 +16,8 @@
 #include <DbgCliNode.h>
 
 // private libraries
+#include <Indicator.h>
+#include <MyBuiltinLedIndicatorAdapter.h>
 #include <ITargetReachedNotifier.h>
 #include <TargetReachedNotifier.h>
 #include <ProductDebug.h>
@@ -27,6 +29,9 @@
 #ifndef BUILTIN_LED
 #define BUILTIN_LED 13
 #endif
+
+// Heart beat indicator implementation with built in LED
+Indicator* heartbeat  = 0;
 
 SerialCommand* sCmd = 0;
 Axis* axis = 0;
@@ -107,13 +112,13 @@ public:
 
 void setup()
 {
-  pinMode(BUILTIN_LED, OUTPUT);
-  digitalWrite(BUILTIN_LED, 0);
-
   setupProdDebugEnv();
 
+  heartbeat = new Indicator("heartbeat", "Hear Beat indicator LED.");
+  heartbeat->assignAdapter(new MyBuiltinLedIndicatorAdapter());
+
   char* axisName;
-  for (unsigned int i = 0; i < 2; i++)
+  for (unsigned int i = 0; i < 5; i++)
   {
     axisName = new char[6];
     memset(axisName, 0, strlen(axisName));
@@ -125,23 +130,35 @@ void setup()
     CmdSequence* cmdSequence = new CmdSequence();
     axis->attachTargetReachedNotifier(new TargetReachedNotifier(axis, cmdSequence));
 
-    new CmdGoToAngle(cmdSequence, -1, axis, 90, 360);
+    new CmdGoToAngle(cmdSequence, -1, axis, 90, 300);
     new CmdStop(cmdSequence, 100);
-    new CmdGoToAngle(cmdSequence, -1, axis, -90, 360);
+    new CmdGoToAngle(cmdSequence, -1, axis, -90, 300);
     new CmdStop(cmdSequence, 100);
-    new CmdGoToAngle(cmdSequence, -1, axis, 90, 360);
+    new CmdGoToAngle(cmdSequence, -1, axis, 90, 300);
     new CmdStop(cmdSequence, 100);
-    new CmdGoToAngle(cmdSequence, -1, axis, -90, 360);
+    new CmdGoToAngle(cmdSequence, -1, axis, 0, 300);
 
     cmdSequence->start();
+    delayAndSchedule(250);
   }
      
   // Synchronized and sequential axes movements
   Axis* ax0 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax0")->getChildNode("set"))->axis();
   Axis* ax1 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax1")->getChildNode("set"))->axis();
-  if ((0 != ax0) && (0 != ax1))
+  Axis* ax2 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax2")->getChildNode("set"))->axis();
+  Axis* ax3 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax3")->getChildNode("set"))->axis();
+  Axis* ax4 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax4")->getChildNode("set"))->axis();
+
+  if ((0 != ax0) && (0 != ax1) && (0 != ax2) && (0 != ax3) && (0 != ax4))
   {
-    while (!ax0->isTargetReached() && !ax1->isTargetReached()) { scheduleTimers(); }
+    while (!ax0->isTargetReached() && 
+           !ax1->isTargetReached() &&
+           !ax2->isTargetReached() &&
+           !ax3->isTargetReached() &&
+           !ax4->isTargetReached()   ) 
+    { 
+      scheduleTimers(); 
+    }
   }
 }
 
