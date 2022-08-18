@@ -25,10 +25,7 @@
 #include <Cmd.h>
 #include <Axis.h>
 #include <MyServoHal.h>
-
-#ifndef BUILTIN_LED
-#define BUILTIN_LED 13
-#endif
+#include <DbgCmd_SetAngle.h>
 
 // Heart beat indicator implementation with built in LED
 Indicator* heartbeat  = 0;
@@ -36,46 +33,6 @@ Indicator* heartbeat  = 0;
 SerialCommand* sCmd = 0;
 Axis* axis = 0;
 int servoPin = 2;
-
-class DbgCmd_SetAngle : public DbgCli_Command
-{
-private:
-  Axis* m_axis;
-  DbgTrace_Port* m_trPort;
-  
-public:
-  DbgCmd_SetAngle(Axis* axis)
-  : DbgCli_Command(new DbgCli_Topic(DbgCli_Node::RootNode(), axis->name(), "Axis debug commands"), "set", "Set angle {-90..90} with defined velocity {1..40}.")
-  , m_axis(axis)
-  , m_trPort(new DbgTrace_Port(m_axis->name(), DbgTrace_Level::info))
-  { }
-
-  Axis* axis() { return m_axis; }
-
-  void execute(unsigned int argc, const char** args, unsigned int idxToFirstArgToHandle)
-  {
-    int angle = 0;
-    int velocity = 0;
-    if (argc - idxToFirstArgToHandle != 2)
-    {
-      printUsage();
-    }
-    else
-    {
-      angle = atoi(args[idxToFirstArgToHandle]);
-      velocity = atoi(args[idxToFirstArgToHandle+1]);
-      m_axis->goToTargetAngle(angle, velocity);
-      TR_PRINTF(m_trPort, DbgTrace_Level::info, "Moving from %d to %d, velocity: %d", m_axis->getAngle(), angle, velocity);
-    }
-  }
-
-  void printUsage()
-  {
-    Serial.println(getHelpText());
-    Serial.println("Usage: dbg axis set <angle> <velocity>");
-    Serial.println("       angle: -90..90, velocity: 1..40");
-  }
-};
 
 class CmdGoToAngle : public Cmd
 {
@@ -142,7 +99,6 @@ void setup()
     delayAndSchedule(1500);
   }
      
-  // Synchronized and sequential axes movements
   Axis* ax0 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax0")->getChildNode("set"))->axis();
   Axis* ax1 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax1")->getChildNode("set"))->axis();
   Axis* ax2 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax2")->getChildNode("set"))->axis();
