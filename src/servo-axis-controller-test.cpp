@@ -87,13 +87,13 @@ void setup()
     CmdSequence* cmdSequence = new CmdSequence();
     axis->attachTargetReachedNotifier(new TargetReachedNotifier(axis, cmdSequence));
 
-    new CmdGoToAngle(cmdSequence, -1, axis, 90, 300);
+    new CmdGoToAngle(cmdSequence, -1, axis, 40, 50);
     new CmdStop(cmdSequence, 100);
-    new CmdGoToAngle(cmdSequence, -1, axis, -90, 300);
+    new CmdGoToAngle(cmdSequence, -1, axis, -40, 50);
     new CmdStop(cmdSequence, 100);
-    new CmdGoToAngle(cmdSequence, -1, axis, 90, 300);
+    new CmdGoToAngle(cmdSequence, -1, axis, 40, 50);
     new CmdStop(cmdSequence, 100);
-    new CmdGoToAngle(cmdSequence, -1, axis, 0, 300);
+    new CmdGoToAngle(cmdSequence, -1, axis, 0, 50);
 
     cmdSequence->start();
     delayAndSchedule(1500);
