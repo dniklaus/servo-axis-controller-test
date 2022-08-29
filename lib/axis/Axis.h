@@ -11,8 +11,16 @@
 class ITargetReachedNotifier;
 class Axis;
 
+/**
+ * @brief 
+ * 
+ */
 class AServoHal
 {
+public:
+  static const int c_maxAngleLimit;  /// [°]
+  static const int c_minAngleLimit;  /// [°]
+
 private:
   Axis* m_axis;
 
@@ -25,6 +33,21 @@ public:
 
   void attachAxis(Axis* axis) { m_axis = axis; }
   Axis* axis() { return m_axis; }
+
+  /**
+   * @brief Get the Max Angle Limit object
+   * 
+   * @return int [°]
+   */
+  int getMaxAngleLimit() { return c_maxAngleLimit; }
+
+  /**
+   * @brief Get the Max Angle Limit object
+   * 
+   * @return int [°]
+   */
+  int getMinAngleLimit() { return c_minAngleLimit; }
+
 
 public:
   virtual ~AServoHal() { }
@@ -39,8 +62,15 @@ private:  // forbidden functions
 
 class SpinTimer;
 
+/**
+ * @brief Servo Axis control.
+ * 
+ * This class helps to control the position of a simple servo 
+ */
 class Axis
 {
+  friend class VelocityControlTimerAction;
+
 public:
   Axis(const char* name);
   virtual ~Axis();
@@ -52,6 +82,12 @@ public:
    * @param servoHal Concrete Servo HW Abstraction object to be injected.
    */
   void attachServoHal(AServoHal* servoHal);
+
+  /**
+   * @brief 
+   * 
+   */
+  AServoHal* servoHal();
 
   /**
    * @brief Inject concrete Target Reached Action object, which will perform the particular action when the target was reached.
@@ -71,7 +107,7 @@ public:
 
   /**
    * Set a particular angle the Servo shall be set to.
-   * @param targetAngle Angle to be set {-90 .. 90}
+   * @param targetAngle Angle to be set {-90 .. 90} [°]
    * @param velocity {1..500}
    */
   void goToTargetAngle(int targetAngle, int velocity);
@@ -81,12 +117,14 @@ public:
    */
   void stop();
 
+protected:
   void doAngleControl();
 
+public:
   /**
    * @brief Get current the angle.
    * 
-   * @return int Current angle.
+   * @return int Current angle [°].
    */
   int getAngle();
 
@@ -113,7 +151,7 @@ private:
   int m_angleMax;
   int m_angle;
   int m_velocity;
-  int m_targetAngle;
+  int m_targetAngle;  /// current target angle
   bool m_isTargetReached;
   unsigned long m_velocityCtrlIntervalMillis;
   static unsigned long s_defaultVelocityCtrlIntervalMillis;
