@@ -26,6 +26,7 @@
 #include <Axis.h>
 #include <MyServoHal.h>
 #include <DbgCmd_SetAngle.h>
+#include <DbgCmd_InitAxes.h>
 
 // Heart beat indicator implementation with built in LED
 Indicator* heartbeat  = 0;
@@ -67,12 +68,40 @@ public:
   }
 };
 
+void axesInit(CmdSequence* axesInitSequence)
+{
+  if (0 != axesInitSequence)
+  {
+    axesInitSequence->start();
+  
+    Axis* ax0 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax0")->getChildNode("set"))->axis();
+    Axis* ax1 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax1")->getChildNode("set"))->axis();
+    Axis* ax2 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax2")->getChildNode("set"))->axis();
+    Axis* ax3 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax3")->getChildNode("set"))->axis();
+    Axis* ax4 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax4")->getChildNode("set"))->axis();
+
+    if ((0 != ax0) && (0 != ax1) && (0 != ax2) && (0 != ax3) && (0 != ax4))
+    {
+      while (ax0->isBusy() || 
+            ax1->isBusy() ||
+            ax2->isBusy() ||
+            ax3->isBusy() ||
+            ax4->isBusy()  ) 
+      { 
+        scheduleTimers(); 
+      }
+    }
+  }
+}
+
 void setup()
 {
   setupProdDebugEnv();
 
   heartbeat = new Indicator("heartbeat", "Hear Beat indicator LED.");
   heartbeat->assignAdapter(new MyBuiltinLedIndicatorAdapter());
+
+  CmdSequence* axesInitSequence = new CmdSequence();
 
   char* axisName;
   for (unsigned int i = 0; i < 5; i++)
@@ -84,38 +113,19 @@ void setup()
     axis->attachServoHal(new MyServoHal(servoPin+i));
     new DbgCmd_SetAngle(axis);
     
-    CmdSequence* cmdSequence = new CmdSequence();
-    axis->attachTargetReachedNotifier(new TargetReachedNotifier(axis, cmdSequence));
+    axis->attachTargetReachedNotifier(new TargetReachedNotifier(axis, axesInitSequence));
 
-    new CmdGoToAngle(cmdSequence, -1, axis, 90, 300);
-    new CmdStop(cmdSequence, 100);
-    new CmdGoToAngle(cmdSequence, -1, axis, -90, 300);
-    new CmdStop(cmdSequence, 100);
-    new CmdGoToAngle(cmdSequence, -1, axis, 90, 300);
-    new CmdStop(cmdSequence, 100);
-    new CmdGoToAngle(cmdSequence, -1, axis, 0, 300);
-
-    cmdSequence->start();
-    delayAndSchedule(1500);
+    new CmdGoToAngle(axesInitSequence, -1, axis, 20, 200);
+    new CmdStop(axesInitSequence, 100);
+    new CmdGoToAngle(axesInitSequence, -1, axis, -20, 200);
+    new CmdStop(axesInitSequence, 100);
+    new CmdGoToAngle(axesInitSequence, -1, axis, 0, 200);
+    new CmdStop(axesInitSequence, 100);
   }
-     
-  Axis* ax0 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax0")->getChildNode("set"))->axis();
-  Axis* ax1 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax1")->getChildNode("set"))->axis();
-  Axis* ax2 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax2")->getChildNode("set"))->axis();
-  Axis* ax3 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax3")->getChildNode("set"))->axis();
-  Axis* ax4 = static_cast<DbgCmd_SetAngle*>(DbgCli_Node::RootNode()->getChildNode("ax4")->getChildNode("set"))->axis();
 
-  if ((0 != ax0) && (0 != ax1) && (0 != ax2) && (0 != ax3) && (0 != ax4))
-  {
-    while (ax0->isBusy() || 
-           ax1->isBusy() ||
-           ax2->isBusy() ||
-           ax3->isBusy() ||
-           ax4->isBusy()  ) 
-    { 
-      scheduleTimers(); 
-    }
-  }
+  new DbgCmd_InitAxes(axesInitSequence);
+
+//  axesInit(axesInitSequence);
 }
 
 void loop()
