@@ -23,7 +23,7 @@ private:
 public:
   /**
    * Set a particular angle the Servo shall be set to.
-   * @param angle Angle to be set {-90 .. 90}
+   * @param angle Angle to be set {min .. max}
    */
   virtual void setAngle(int angle) = 0;
 
