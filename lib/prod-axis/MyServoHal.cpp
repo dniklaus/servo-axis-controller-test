@@ -6,11 +6,12 @@
 #include <DbgTracePort.h>
 
 
-const int AServoHal::c_maxAngleLimit =  90;  /// [°]
-const int AServoHal::c_minAngleLimit = -90;  /// [°]
+const int MyServoHal::c_maxAngleLimit =  90;  /// [°]
+const int MyServoHal::c_minAngleLimit = -90;  /// [°]
 
 MyServoHal::MyServoHal(int servoPin)
-: m_servo(new Servo())
+: AServoHal(c_maxAngleLimit, c_minAngleLimit)
+, m_servo(new Servo())
 , m_trPort(0)
 {
   m_servo->attach(servoPin);
@@ -24,7 +25,7 @@ MyServoHal::~MyServoHal()
 
 void MyServoHal::setAngle(int angle)
 {
-  m_servo->write(map(angle, -90, 90, 0, 180));
+  m_servo->write(map(angle, getMinAngleLimit(), getMaxAngleLimit(), 0, 180));
 
   Axis* myAxis = axis();
   if (0 != myAxis)
@@ -33,13 +34,3 @@ void MyServoHal::setAngle(int angle)
     TR_PRINTF(trPort, DbgTrace_Level::debug, "Servo currently set angle to %d", myAxis->getAngle());
   }
 }
-
-// int MyServoHal::getMaxAngleLimit()
-// {
-//   return c_maxAngleLimit;
-// }
-
-// int MyServoHal::getMinAngleLimit()
-// {
-//   return c_minAngleLimit;
-// }

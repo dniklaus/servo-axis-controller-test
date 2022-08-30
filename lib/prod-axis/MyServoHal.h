@@ -18,23 +18,9 @@ public:
 
   void setAngle(int angle);
 
-  // /**
-  //  * @brief Get the Max Angle Limit object
-  //  * 
-  //  * @return int [°]
-  //  */
-  // int getMaxAngleLimit();
-
-  // /**
-  //  * @brief Get the Min Angle Limit object
-  //  * 
-  //  * @return int [°]
-  //  */
-  // int getMinAngleLimit();
-
-// private:
-  // static const int c_maxAngleLimit;  /// [°]
-  // static const int c_minAngleLimit;  /// [°]
+public:
+  static const int c_maxAngleLimit;  /// [°]
+  static const int c_minAngleLimit;  /// [°]
 
 private:
   Servo* m_servo;

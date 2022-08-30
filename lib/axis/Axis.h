@@ -17,10 +17,6 @@ class Axis;
  */
 class AServoHal
 {
-public:
-  static const int c_maxAngleLimit;  /// [°]
-  static const int c_minAngleLimit;  /// [°]
-
 private:
   Axis* m_axis;
 
@@ -35,25 +31,32 @@ public:
   Axis* axis() { return m_axis; }
 
   /**
-   * @brief Get the Max Angle Limit object
+   * @brief Get the Max Angle Limit
    * 
    * @return int [°]
    */
-  int getMaxAngleLimit() { return c_maxAngleLimit; }
+  int getMaxAngleLimit() { return m_maxAngleLimit; }
 
   /**
-   * @brief Get the Max Angle Limit object
+   * @brief Get the Max Angle Limit
    * 
    * @return int [°]
    */
-  int getMinAngleLimit() { return c_minAngleLimit; }
+  int getMinAngleLimit() { return m_minAngleLimit; }
 
 
 public:
   virtual ~AServoHal() { }
 
 protected:
-  AServoHal() { }
+  AServoHal(int maxAngleLimit = 90, int minAngleLimit = -90) 
+  : m_maxAngleLimit(maxAngleLimit)
+  , m_minAngleLimit(minAngleLimit)
+  { }
+
+private:
+  int m_maxAngleLimit;  /// [°]
+  int m_minAngleLimit;  /// [°]
 
 private:  // forbidden functions
   AServoHal(const AServoHal& src);              // copy constructor
