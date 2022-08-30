@@ -6,6 +6,10 @@
 class Servo;
 class DbgTrace_Port;
 
+/**
+ * @brief 
+ * 
+ */
 class MyServoHal : public AServoHal
 {
 public:
@@ -13,6 +17,10 @@ public:
   virtual ~MyServoHal();
 
   void setAngle(int angle);
+
+public:
+  static const int c_maxAngleLimit;  /// [°]
+  static const int c_minAngleLimit;  /// [°]
 
 private:
   Servo* m_servo;

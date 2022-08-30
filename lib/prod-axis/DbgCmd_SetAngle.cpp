@@ -5,7 +5,7 @@
 #include "DbgCmd_SetAngle.h"
 
 DbgCmd_SetAngle::DbgCmd_SetAngle(Axis* axis)
-: DbgCli_Command(new DbgCli_Topic(DbgCli_Node::RootNode(), axis->name(), "Axis debug commands"), "set", "Set angle {-90..90} with defined velocity {1..40}.")
+: DbgCli_Command(new DbgCli_Topic(DbgCli_Node::RootNode(), axis->name(), "Axis debug commands"), "set", "Set angle [°] with defined velocity.")
 , m_axis(axis)
 , m_trPort(new DbgTrace_Port(m_axis->name(), DbgTrace_Level::info))
 { }
@@ -39,5 +39,9 @@ void DbgCmd_SetAngle::printUsage()
 {
     Serial.println(getHelpText());
     Serial.println("Usage: dbg axis set <angle> <velocity>");
-    Serial.println("       angle: -90..90, velocity: 1..40");
+    Serial.print  ("       angle: ");
+    Serial.print  (m_axis->servoHal()->getMinAngleLimit());
+    Serial.print  ("..");
+    Serial.print  (m_axis->servoHal()->getMaxAngleLimit());
+    Serial.println(", velocity: 1..500");
 }
