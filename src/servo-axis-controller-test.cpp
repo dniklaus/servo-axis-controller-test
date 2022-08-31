@@ -103,12 +103,11 @@ void setup()
 
   CmdSequence* axesInitSequence = new CmdSequence();
 
-  char* axisName;
   for (unsigned int i = 0; i < 5; i++)
   {
-    axisName = new char[6];
-    memset(axisName, 0, strlen(axisName));
-    sprintf(axisName, "ax%d\0", i);
+    char axisName[10];
+    memset(axisName, 0, sizeof(axisName));
+    sprintf(axisName, "ax%d", i);
     axis = new Axis(axisName);
     axis->attachServoHal(new MyServoHal(servoPin+i));
     new DbgCmd_SetAngle(axis);
