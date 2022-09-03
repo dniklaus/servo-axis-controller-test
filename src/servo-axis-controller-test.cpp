@@ -20,6 +20,7 @@
 #include <MyBuiltinLedIndicatorAdapter.h>
 #include <ITargetReachedNotifier.h>
 #include <TargetReachedNotifier.h>
+#include <AServoHal.h>
 #include <ProductDebug.h>
 #include <CmdSequence.h>
 #include <Cmd.h>

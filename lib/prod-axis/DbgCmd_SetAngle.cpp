@@ -1,4 +1,5 @@
 #include <Axis.h>
+#include <AServoHal.h>
 #include <DbgTracePort.h>
 #include <DbgCliTopic.h>
 #include <DbgCliNode.h>

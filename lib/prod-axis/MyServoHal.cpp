@@ -1,10 +1,10 @@
 
 #include <MyServoHal.h>
+#include <Axis.h>
 #include <Arduino.h>
 #include <Servo.h>
 #include <DbgTraceContext.h>
 #include <DbgTracePort.h>
-
 
 const int MyServoHal::c_maxAngleLimit =  90;  /// [°]
 const int MyServoHal::c_minAngleLimit = -90;  /// [°]

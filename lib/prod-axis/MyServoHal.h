@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <Axis.h>
+#include <AServoHal.h>
 
 class Servo;
 class DbgTrace_Port;
