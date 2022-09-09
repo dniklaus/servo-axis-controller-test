@@ -24,7 +24,9 @@ extern "C"
 
 void setupProdDebugEnv()
 {
-  setupDebugEnv('\0');
+  const char c_termChar = '\0';
+
+  setupDebugEnv(c_termChar);
 
   Serial.println();
   Serial.println("------------------------------------------");
