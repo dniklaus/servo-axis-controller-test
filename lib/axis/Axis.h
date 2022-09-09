@@ -8,108 +8,70 @@
 #ifndef SRC_AXIS_H_
 #define SRC_AXIS_H_
 
-class ITargetReachedNotifier;
-class Axis;
-
-/**
- * @brief 
- * 
- */
-class AServoHal
-{
-private:
-  Axis* m_axis;
-
-public:
-  /**
-   * Set a particular angle the Servo shall be set to.
-   * @param angle Angle to be set {min .. max}
-   */
-  virtual void setAngle(int angle) = 0;
-
-  void attachAxis(Axis* axis) { m_axis = axis; }
-  Axis* axis() { return m_axis; }
-
-  /**
-   * @brief Get the Max Angle Limit
-   * 
-   * @return int [°]
-   */
-  int getMaxAngleLimit() { return m_maxAngleLimit; }
-
-  /**
-   * @brief Get the Max Angle Limit
-   * 
-   * @return int [°]
-   */
-  int getMinAngleLimit() { return m_minAngleLimit; }
-
-
-public:
-  virtual ~AServoHal() { }
-
-protected:
-  AServoHal(int maxAngleLimit = 90, int minAngleLimit = -90) 
-  : m_maxAngleLimit(maxAngleLimit)
-  , m_minAngleLimit(minAngleLimit)
-  { }
-
-private:
-  int m_maxAngleLimit;  /// [°]
-  int m_minAngleLimit;  /// [°]
-
-private:  // forbidden functions
-  AServoHal(const AServoHal& src);              // copy constructor
-  AServoHal& operator = (const AServoHal& src); // assignment operator
-};
-
 class SpinTimer;
+class AServoHal;
+class ITargetReachedNotifier;
 
 /**
  * @brief Servo Axis control.
  * 
- * This class helps to control the position of a simple servo 
+ * This class helps to control the position of a simple servo.
  */
 class Axis
 {
   friend class VelocityControlTimerAction;
 
 public:
-  Axis(const char* name);
+  /**
+   * @brief Construct a new Axis object.
+   * 
+   * @param name Axis name.
+   */
+  Axis(char* name);
+
+  /**
+   * @brief Destroy the Axis object.
+   */
   virtual ~Axis();
 
 public:
   /**
-   * @brief Inject concrete Servo HW Abstraction object, which actually will perform the physical action.
+   * @brief Inject concrete Servo HW Abstraction Layer object, which actually will perform the physical action.
    * 
-   * @param servoHal Concrete Servo HW Abstraction object to be injected.
+   * @param servoHal Concrete Servo HW Abstraction Layer object to be injected.
    */
   void attachServoHal(AServoHal* servoHal);
 
   /**
-   * @brief 
+   * @brief Access to concrete Servo HW Abstraction Layer object.
    * 
+   * @return Servo HW Abstraction Layer object.
    */
   AServoHal* servoHal();
 
   /**
-   * @brief Inject concrete Target Reached Action object, which will perform the particular action when the target was reached.
+   * @brief Inject concrete Target Reached Notifier object, which will perform the particular action when the target was reached.
    * 
-   * @param targetReachedNotifier Concrete Target Reached Action object to be injected.
+   * @param targetReachedNotifier Target Reached Notifier object.
    */
   void attachTargetReachedNotifier(ITargetReachedNotifier* targetReachedNotifier);
 
   /**
-   * @brief 
+   * @brief Access to concrete Target Reached Notifier object.
    * 
-   * @return ITargetReachedNotifier* 
+   * @return Target Reached Notifier object. 
    */
   ITargetReachedNotifier* targetReachedNotifier();
 
+  /**
+   * @brief Access to 
+   * 
+   * @return const char* 
+   */
   const char* name() const;
 
   /**
-   * Set a particular angle the Servo shall be set to.
+   * @brief Set a particular angle the Servo shall be set to.
    * @param targetAngle Angle to be set {-90 .. 90} [°]
    * @param velocity {1..500}
    */
@@ -125,7 +87,7 @@ protected:
 
 public:
   /**
-   * @brief Get current the angle.
+   * @brief Get current angle.
    * 
    * @return int Current angle [°].
    */
